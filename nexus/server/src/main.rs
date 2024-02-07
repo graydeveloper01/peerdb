@@ -1161,10 +1161,13 @@ fn setup_tracing(log_dir: &str) -> TracerGuards {
         .or_else(|_| EnvFilter::try_new("info"))
         .unwrap();
 
+    let stackdriver = tracing_stackdriver::layer();
+    
     tracing_subscriber::registry()
         .with(console_layer)
         .with(fmt_stdout_layer)
         .with(fmt_file_layer)
+        .with(stackdriver)
         .with(filter_layer)
         .init();
 
