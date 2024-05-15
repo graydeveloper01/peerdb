@@ -53,6 +53,8 @@ const (
 	QValueKindArrayTimestamp   QValueKind = "array_timestamp"
 	QValueKindArrayTimestampTZ QValueKind = "array_timestamptz"
 	QValueKindArrayBoolean     QValueKind = "array_bool"
+	QValueKindArrayJSON        QValueKind = "array_json"
+	QValueKindArrayJSONB       QValueKind = "array_jsonb"
 )
 
 func (kind QValueKind) IsArray() bool {

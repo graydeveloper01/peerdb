@@ -106,6 +106,10 @@ func (c *PostgresConnector) postgresOIDToQValueKind(recvOID uint32) qvalue.QValu
 		return qvalue.QValueKindArrayTimestampTZ
 	case pgtype.TextArrayOID, pgtype.VarcharArrayOID, pgtype.BPCharArrayOID:
 		return qvalue.QValueKindArrayString
+	case pgtype.JSONArrayOID:
+		return qvalue.QValueKindArrayJSON
+	case pgtype.JSONBArrayOID:
+		return qvalue.QValueKindArrayJSONB
 	case pgtype.IntervalOID:
 		return qvalue.QValueKindInterval
 	case pgtype.TstzrangeOID:
@@ -209,6 +213,10 @@ func qValueKindToPostgresType(colTypeStr string) string {
 		return "BOOLEAN[]"
 	case qvalue.QValueKindArrayString:
 		return "TEXT[]"
+	case qvalue.QValueKindArrayJSON:
+		return "JSON"
+	case qvalue.QValueKindArrayJSONB:
+		return "JSONB"
 	case qvalue.QValueKindGeography:
 		return "GEOGRAPHY"
 	case qvalue.QValueKindGeometry:
@@ -337,7 +345,8 @@ func parseFieldFromQValueKind(qvalueKind qvalue.QValueKind, value interface{}) (
 	case qvalue.QValueKindBoolean:
 		boolVal := value.(bool)
 		return qvalue.QValueBoolean{Val: boolVal}, nil
-	case qvalue.QValueKindJSON, qvalue.QValueKindJSONB:
+	case qvalue.QValueKindJSON, qvalue.QValueKindJSONB,
+		qvalue.QValueKindArrayJSON, qvalue.QValueKindArrayJSONB:
 		tmp, err := parseJSON(value)
 		if err != nil {
 			return nil, fmt.Errorf("failed to parse JSON: %w", err)
