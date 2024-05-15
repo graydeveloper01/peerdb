@@ -1,6 +1,7 @@
 package model
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"strings"
@@ -215,8 +216,17 @@ func (src *QRecordBatchCopyFromSource) Values() ([]interface{}, error) {
 			}
 			values[i] = a
 		case qvalue.QValueJSON:
-			values[i] = v.Val
+			if v.IsArray {
+				var arrayJ []interface{}
+				if err := json.Unmarshal([]byte(v.Value().(string)), &arrayJ); err != nil {
+					src.err = fmt.Errorf("failed to unmarshal JSON array: %v", err)
+					return nil, src.err
+				}
 
+				values[i] = arrayJ
+			} else {
+				values[i] = v.Value()
+			}
 		// And so on for the other types...
 		default:
 			src.err = fmt.Errorf("unsupported value type %T", qValue)

@@ -359,7 +359,8 @@ func (v QValueUUID) LValue(ls *lua.LState) lua.LValue {
 }
 
 type QValueJSON struct {
-	Val string
+	Val     string
+	IsArray bool
 }
 
 func (QValueJSON) Kind() QValueKind {

@@ -214,9 +214,9 @@ func qValueKindToPostgresType(colTypeStr string) string {
 	case qvalue.QValueKindArrayString:
 		return "TEXT[]"
 	case qvalue.QValueKindArrayJSON:
-		return "JSON"
+		return "JSON[]"
 	case qvalue.QValueKindArrayJSONB:
-		return "JSONB"
+		return "JSONB[]"
 	case qvalue.QValueKindGeography:
 		return "GEOGRAPHY"
 	case qvalue.QValueKindGeometry:
@@ -228,12 +228,12 @@ func qValueKindToPostgresType(colTypeStr string) string {
 	}
 }
 
-func parseJSON(value interface{}) (qvalue.QValue, error) {
+func parseJSON(value interface{}, isArray bool) (qvalue.QValue, error) {
 	jsonVal, err := json.Marshal(value)
 	if err != nil {
 		return nil, fmt.Errorf("failed to parse JSON: %w", err)
 	}
-	return qvalue.QValueJSON{Val: string(jsonVal)}, nil
+	return qvalue.QValueJSON{Val: string(jsonVal), IsArray: isArray}, nil
 }
 
 func convertToArray[T any](kind qvalue.QValueKind, value interface{}) ([]T, error) {
@@ -345,11 +345,16 @@ func parseFieldFromQValueKind(qvalueKind qvalue.QValueKind, value interface{}) (
 	case qvalue.QValueKindBoolean:
 		boolVal := value.(bool)
 		return qvalue.QValueBoolean{Val: boolVal}, nil
-	case qvalue.QValueKindJSON, qvalue.QValueKindJSONB,
-		qvalue.QValueKindArrayJSON, qvalue.QValueKindArrayJSONB:
-		tmp, err := parseJSON(value)
+	case qvalue.QValueKindJSON, qvalue.QValueKindJSONB:
+		tmp, err := parseJSON(value, false)
 		if err != nil {
 			return nil, fmt.Errorf("failed to parse JSON: %w", err)
+		}
+		return tmp, nil
+	case qvalue.QValueKindArrayJSON, qvalue.QValueKindArrayJSONB:
+		tmp, err := parseJSON(value, true)
+		if err != nil {
+			return nil, fmt.Errorf("failed to parse JSON Array: %w", err)
 		}
 		return tmp, nil
 	case qvalue.QValueKindInt16:
