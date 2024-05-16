@@ -18,13 +18,11 @@ import (
 )
 
 var ClickhouseQuerySettings = clickhouse.Settings{
-	"max_memory_usage":                     PeerDBClickhouseQueryMaxMemoryUsage,
-	"max_block_size":                       PeerDBClickhouseMaxBlockSize,
-	"max_insert_block_size":                PeerDBClickhouseMaxInsertBlockSize,
-	"max_insert_threads":                   PeerDBClickhouseMaxInsertThreads,
-	"max_server_memory_usage":              PeerDBClickhouseMaxServerMemoryUsage,
-	"max_server_memory_usage_to_ram_ratio": PeerDBClickhouseMemoryRamRatio,
-	"memory_overcommit_ratio_denominator":  PeerDBClickhouseMemoryOvercommitRatioDenominator,
+	"max_memory_usage":                    PeerDBClickhouseQueryMaxMemoryUsage,
+	"max_block_size":                      PeerDBClickhouseMaxBlockSize,
+	"max_insert_block_size":               PeerDBClickhouseMaxInsertBlockSize,
+	"max_insert_threads":                  PeerDBClickhouseMaxInsertThreads,
+	"memory_overcommit_ratio_denominator": PeerDBClickhouseMemoryOvercommitRatioDenominator,
 }
 
 type ClickhouseAvroSyncMethod struct {

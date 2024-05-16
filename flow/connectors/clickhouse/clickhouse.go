@@ -29,8 +29,6 @@ const (
 	PeerDBClickhouseMaxBlockSize                     string = "10240"
 	PeerDBClickhouseMaxInsertBlockSize               string = "10240"
 	PeerDBClickhouseMaxInsertThreads                 string = "2"
-	PeerDBClickhouseMaxServerMemoryUsage             string = "0"
-	PeerDBClickhouseMemoryRamRatio                   string = "0"
 	PeerDBClickhouseMemoryOvercommitRatioDenominator string = "0"
 )
 
