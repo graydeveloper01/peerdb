@@ -16,6 +16,7 @@ import (
 
 	"github.com/PeerDB-io/peer-flow/connectors/utils"
 	partition_utils "github.com/PeerDB-io/peer-flow/connectors/utils/partition"
+	"github.com/PeerDB-io/peer-flow/dynamicconf"
 	"github.com/PeerDB-io/peer-flow/generated/protos"
 	"github.com/PeerDB-io/peer-flow/model"
 	"github.com/PeerDB-io/peer-flow/shared"
@@ -28,7 +29,8 @@ func (c *PostgresConnector) GetQRepPartitions(
 	config *protos.QRepConfig,
 	last *protos.QRepPartition,
 ) ([]*protos.QRepPartition, error) {
-	if config.WatermarkColumn == "" {
+	useFullTablePartition := dynamicconf.PeerDBInitialLoadUseFullTablePartitions(ctx)
+	if config.WatermarkColumn == "" || useFullTablePartition {
 		// if no watermark column is specified, return a single partition
 		partition := &protos.QRepPartition{
 			PartitionId:        uuid.New().String(),

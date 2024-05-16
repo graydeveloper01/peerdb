@@ -103,3 +103,9 @@ func PeerDBOpenConnectionsAlertThreshold(ctx context.Context) uint32 {
 func PeerDBBigQueryEnableSyncedAtPartitioning(ctx context.Context) bool {
 	return dynamicConfBool(ctx, "PEERDB_BIGQUERY_ENABLE_SYNCED_AT_PARTITIONING_BY_DAYS", false)
 }
+
+// PEERDB_INITIAL_LOAD_USE_FULL_TABLE_PARTITIONS, if true during initial load
+// QREP will use full table partitions, otherwise will use NTILE to create partitions
+func PeerDBInitialLoadUseFullTablePartitions(ctx context.Context) bool {
+	return dynamicConfBool(ctx, "PEERDB_INITIAL_LOAD_USE_FULL_TABLE_PARTITIONS", true)
+}
