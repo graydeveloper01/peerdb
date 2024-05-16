@@ -321,7 +321,8 @@ func (c *PostgresConnector) PullQRepRecords(
 		executor := c.NewQRepQueryExecutorSnapshot(c.config.TransactionSnapshot,
 			config.FlowJobName, partition.PartitionId)
 
-		query := config.Query
+		// rewrite query as SELECT * FROM config.watermark_table
+		query := fmt.Sprintf("SELECT * FROM %s", config.WatermarkTable)
 		_, err := executor.ExecuteAndProcessQueryStream(ctx, stream, query)
 		return 0, err
 	}
