@@ -244,7 +244,7 @@ func (c *ClickhouseConnector) normalizeTableRecords(
 	selectQuery.WriteString(strconv.FormatInt(req.SyncBatchID, 10))
 	selectQuery.WriteString(" AND _peerdb_destination_table_name = '")
 	selectQuery.WriteString(tbl)
-	selectQuery.WriteString(fmt.Sprintf(" AND cityHash(_peerdb_uid) %% %d = %d", modPart, modVal))
+	selectQuery.WriteString(fmt.Sprintf(" AND cityHash(_peerdb_uid) %% %d = %d", modVal, modPart))
 	selectQuery.WriteString("'")
 
 	selectQuery.WriteString(" ORDER BY _peerdb_timestamp")
