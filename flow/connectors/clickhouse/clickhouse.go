@@ -25,12 +25,13 @@ import (
 )
 
 const (
-	PeerDBClickhouseQueryMaxMemoryUsage              int = 0
-	PeerDBClickhouseMaxBlockSize                     int = 10240
-	PeerDBClickhouseMaxInsertBlockSize               int = 10240
-	PeerDBClickhouseMaxInsertThreads                 int = 2
-	PeerDBClickhouseMemoryOvercommitRatioDenominator int = 0
-	PeerDBClickhouseMaxMemoryUsageForUser            int = 0
+	PeerDBClickhouseQueryMaxMemoryUsage                  int = 64000000000
+	PeerDBClickhouseMaxBlockSize                         int = 10240
+	PeerDBClickhouseMaxInsertBlockSize                   int = 10240
+	PeerDBClickhouseMaxInsertThreads                     int = 1
+	PeerDBClickhouseMemoryOvercommitRatioDenominator     int = 0
+	PeerDBClickhouseMemoryOvercommitRatioDenominatorUser int = 0
+	PeerDBClickhouseMaxMemoryUsageForUser                int = 64000000000
 )
 
 type ClickhouseConnector struct {
