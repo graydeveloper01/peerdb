@@ -74,6 +74,7 @@ const (
 
 	dropTableIfExistsSQL         = "DROP TABLE IF EXISTS %s.%s"
 	deleteJobMetadataSQL         = "DELETE FROM %s.%s WHERE mirror_job_name=$1"
+	checkIfTableExistsSQL        = `SELECT EXISTS(SELECT 1 FROM pg_tables WHERE schemaname=$1 AND tablename=$2) AS table_exists`
 	getNumConnectionsForUser     = "SELECT COUNT(*) FROM pg_stat_activity WHERE usename=$1 AND client_addr IS NOT NULL"
 	getNumReplicationConnections = "select COUNT(*) from pg_stat_replication WHERE usename = $1 AND client_addr IS NOT NULL"
 )

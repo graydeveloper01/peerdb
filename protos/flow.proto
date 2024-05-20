@@ -180,6 +180,7 @@ message GetTableSchemaBatchInput {
   repeated string table_identifiers = 2;
   string flow_name = 3;
   TypeSystem system = 4;
+  bool skipChecksForQRep = 5;
   string peer_name = 5;
 }
 

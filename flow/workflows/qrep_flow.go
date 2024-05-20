@@ -107,10 +107,11 @@ func (q *QRepFlowExecution) getTableSchema(ctx workflow.Context, tableName strin
 	})
 
 	tableSchemaInput := &protos.GetTableSchemaBatchInput{
-		PeerName:         q.config.SourceName,
-		TableIdentifiers: []string{tableName},
-		FlowName:         q.config.FlowJobName,
-		System:           q.config.System,
+		PeerName:          q.config.SourceName,
+		TableIdentifiers:  []string{tableName},
+		FlowName:          q.config.FlowJobName,
+		System:            q.config.System,
+		SkipChecksForQRep: true,
 	}
 
 	future := workflow.ExecuteActivity(ctx, flowable.GetTableSchema, tableSchemaInput)
