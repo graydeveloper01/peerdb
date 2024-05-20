@@ -186,7 +186,6 @@ func connect(ctx context.Context, config *protos.ClickhouseConfig) (*sql.DB, err
 			},
 		},
 		Settings: map[string]any{
-			"idle_timeout":    10000,
 			"connect_timeout": 10000,
 			"send_timeout":    10000,
 			"receive_timeout": 10000,
