@@ -8,6 +8,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/ClickHouse/clickhouse-go/v2"
 	"github.com/PeerDB-io/peer-flow/datatypes"
 	"github.com/PeerDB-io/peer-flow/generated/protos"
 	"github.com/PeerDB-io/peer-flow/model"
@@ -222,7 +223,8 @@ func (c *ClickhouseConnector) NormalizeRecords(ctx context.Context, req *model.N
 		q := insertIntoSelectQuery.String()
 		c.logger.Info("[clickhouse] insert into select query " + q)
 
-		_, err = c.database.ExecContext(ctx, q)
+		insertSelectQueryCtx := clickhouse.Context(ctx, clickhouse.WithSettings(ClickhouseQuerySettings))
+		_, err = c.database.ExecContext(insertSelectQueryCtx, q)
 		if err != nil {
 			return nil, fmt.Errorf("error while inserting into normalized table: %w", err)
 		}
