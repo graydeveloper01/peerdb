@@ -8,7 +8,6 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/ClickHouse/clickhouse-go/v2"
 	"github.com/PeerDB-io/peer-flow/datatypes"
 	"github.com/PeerDB-io/peer-flow/generated/protos"
 	"github.com/PeerDB-io/peer-flow/model"
@@ -150,83 +149,14 @@ func (c *ClickhouseConnector) NormalizeRecords(ctx context.Context, req *model.N
 
 	rawTbl := c.getRawTableName(req.FlowJobName)
 
-	// model the raw table data as inserts.
-	for _, tbl := range destinationTableNames {
-		// SELECT projection FROM raw_table WHERE _peerdb_batch_id > normalize_batch_id AND _peerdb_batch_id <= sync_batch_id
-		selectQuery := strings.Builder{}
-		selectQuery.WriteString("SELECT ")
-
-		colSelector := strings.Builder{}
-		colSelector.WriteString("(")
-
-		schema := req.TableNameSchemaMapping[tbl]
-
-		projection := strings.Builder{}
-
-		for _, column := range schema.Columns {
-			cn := column.Name
-			ct := column.Type
-
-			colSelector.WriteString(fmt.Sprintf("`%s`,", cn))
-			colType := qvalue.QValueKind(ct)
-			clickhouseType, err := colType.ToDWHColumnType(protos.DBType_CLICKHOUSE)
+	modVal := 17
+	for modPart := 0; modPart < modVal; modPart++ {
+		for _, tbl := range destinationTableNames {
+			// model the raw table data as inserts.
+			err = c.normalizeTableRecords(ctx, req, tbl, rawTbl, normBatchID, modPart, modVal)
 			if err != nil {
-				return nil, fmt.Errorf("error while converting column type to clickhouse type: %w", err)
+				return nil, err
 			}
-
-			switch clickhouseType {
-			case "Date":
-				projection.WriteString(fmt.Sprintf(
-					"toDate(parseDateTime64BestEffortOrNull(JSONExtractString(_peerdb_data, '%s'))) AS `%s`,",
-					cn,
-					cn,
-				))
-			case "DateTime64(6)":
-				projection.WriteString(fmt.Sprintf(
-					"parseDateTime64BestEffortOrNull(JSONExtractString(_peerdb_data, '%s')) AS `%s`,",
-					cn,
-					cn,
-				))
-			default:
-				projection.WriteString(fmt.Sprintf("JSONExtract(_peerdb_data, '%s', '%s') AS `%s`,", cn, clickhouseType, cn))
-			}
-		}
-
-		// add _peerdb_sign as _peerdb_record_type / 2
-		projection.WriteString(fmt.Sprintf("intDiv(_peerdb_record_type, 2) AS `%s`,", signColName))
-		colSelector.WriteString(fmt.Sprintf("`%s`,", signColName))
-
-		// add _peerdb_timestamp as _peerdb_version
-		projection.WriteString(fmt.Sprintf("_peerdb_timestamp AS `%s`", versionColName))
-		colSelector.WriteString(versionColName)
-		colSelector.WriteString(") ")
-
-		selectQuery.WriteString(projection.String())
-		selectQuery.WriteString(" FROM ")
-		selectQuery.WriteString(rawTbl)
-		selectQuery.WriteString(" WHERE _peerdb_batch_id > ")
-		selectQuery.WriteString(strconv.FormatInt(normBatchID, 10))
-		selectQuery.WriteString(" AND _peerdb_batch_id <= ")
-		selectQuery.WriteString(strconv.FormatInt(req.SyncBatchID, 10))
-		selectQuery.WriteString(" AND _peerdb_destination_table_name = '")
-		selectQuery.WriteString(tbl)
-		selectQuery.WriteString("'")
-
-		selectQuery.WriteString(" ORDER BY _peerdb_timestamp")
-
-		insertIntoSelectQuery := strings.Builder{}
-		insertIntoSelectQuery.WriteString("INSERT INTO ")
-		insertIntoSelectQuery.WriteString(tbl)
-		insertIntoSelectQuery.WriteString(colSelector.String())
-		insertIntoSelectQuery.WriteString(selectQuery.String())
-
-		q := insertIntoSelectQuery.String()
-		c.logger.Info("[clickhouse] insert into select query " + q)
-
-		insertSelectQueryCtx := clickhouse.Context(ctx, clickhouse.WithSettings(ClickhouseQuerySettings))
-		_, err = c.database.ExecContext(insertSelectQueryCtx, q)
-		if err != nil {
-			return nil, fmt.Errorf("error while inserting into normalized table: %w", err)
 		}
 	}
 
@@ -242,6 +172,97 @@ func (c *ClickhouseConnector) NormalizeRecords(ctx context.Context, req *model.N
 		StartBatchID: endNormalizeBatchId,
 		EndBatchID:   req.SyncBatchID,
 	}, nil
+}
+
+func (c *ClickhouseConnector) normalizeTableRecords(
+	ctx context.Context,
+	req *model.NormalizeRecordsRequest,
+	tbl string,
+	rawTbl string,
+	normBatchID int64,
+	modPart int,
+	modVal int,
+) error {
+	c.logger.Info(fmt.Sprintf("[clickhouse] normalize table records for table %s, modPart %d, modVal %d", tbl, modPart, modVal))
+
+	// SELECT projection FROM raw_table WHERE _peerdb_batch_id > normalize_batch_id AND _peerdb_batch_id <= sync_batch_id
+	selectQuery := strings.Builder{}
+	selectQuery.WriteString("SELECT ")
+
+	colSelector := strings.Builder{}
+	colSelector.WriteString("(")
+
+	schema := req.TableNameSchemaMapping[tbl]
+
+	projection := strings.Builder{}
+
+	for _, column := range schema.Columns {
+		cn := column.Name
+		ct := column.Type
+
+		colSelector.WriteString(fmt.Sprintf("`%s`,", cn))
+		colType := qvalue.QValueKind(ct)
+		clickhouseType, err := colType.ToDWHColumnType(protos.DBType_CLICKHOUSE)
+		if err != nil {
+			return fmt.Errorf("error while converting column type to clickhouse type: %w", err)
+		}
+
+		switch clickhouseType {
+		case "Date":
+			projection.WriteString(fmt.Sprintf(
+				"toDate(parseDateTime64BestEffortOrNull(JSONExtractString(_peerdb_data, '%s'))) AS `%s`,",
+				cn,
+				cn,
+			))
+		case "DateTime64(6)":
+			projection.WriteString(fmt.Sprintf(
+				"parseDateTime64BestEffortOrNull(JSONExtractString(_peerdb_data, '%s')) AS `%s`,",
+				cn,
+				cn,
+			))
+		default:
+			projection.WriteString(fmt.Sprintf("JSONExtract(_peerdb_data, '%s', '%s') AS `%s`,", cn, clickhouseType, cn))
+		}
+	}
+
+	// add _peerdb_sign as _peerdb_record_type / 2
+	projection.WriteString(fmt.Sprintf("intDiv(_peerdb_record_type, 2) AS `%s`,", signColName))
+	colSelector.WriteString(fmt.Sprintf("`%s`,", signColName))
+
+	// add _peerdb_timestamp as _peerdb_version
+	projection.WriteString(fmt.Sprintf("_peerdb_timestamp AS `%s`", versionColName))
+	colSelector.WriteString(versionColName)
+	colSelector.WriteString(") ")
+
+	selectQuery.WriteString(projection.String())
+	selectQuery.WriteString(" FROM ")
+	selectQuery.WriteString(rawTbl)
+	selectQuery.WriteString(" WHERE _peerdb_batch_id > ")
+	selectQuery.WriteString(strconv.FormatInt(normBatchID, 10))
+	selectQuery.WriteString(" AND _peerdb_batch_id <= ")
+	selectQuery.WriteString(strconv.FormatInt(req.SyncBatchID, 10))
+	selectQuery.WriteString(" AND _peerdb_destination_table_name = '")
+	selectQuery.WriteString(tbl)
+	selectQuery.WriteString(fmt.Sprintf(" AND cityHash(_peerdb_uid) %% %d = %d", modPart, modVal))
+	selectQuery.WriteString("'")
+
+	selectQuery.WriteString(" ORDER BY _peerdb_timestamp")
+
+	insertIntoSelectQuery := strings.Builder{}
+	insertIntoSelectQuery.WriteString("INSERT INTO ")
+	insertIntoSelectQuery.WriteString(tbl)
+	insertIntoSelectQuery.WriteString(colSelector.String())
+	insertIntoSelectQuery.WriteString(selectQuery.String())
+
+	q := insertIntoSelectQuery.String()
+	c.logger.Info("[clickhouse] insert into select query " + q)
+
+	_, err := c.database.ExecContext(ctx, q)
+	if err != nil {
+		return fmt.Errorf("error while inserting into normalized table: %w", err)
+	}
+
+	return nil
 }
 
 func (c *ClickhouseConnector) getDistinctTableNamesInBatch(
