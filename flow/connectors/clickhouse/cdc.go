@@ -151,8 +151,9 @@ func (c *ClickhouseConnector) ReplayTableSchemaDeltas(ctx context.Context, flowJ
 				return fmt.Errorf("failed to convert column type %s to clickhouse type: %w",
 					addedColumn.Type, err)
 			}
+
 			_, err = tableSchemaModifyTx.ExecContext(ctx,
-				fmt.Sprintf("ALTER TABLE %s ADD COLUMN IF NOT EXISTS \"%s\" %s",
+				fmt.Sprintf("ALTER TABLE `%s` ADD COLUMN IF NOT EXISTS \"%s\" %s",
 					schemaDelta.DstTableName, addedColumn.Name, clickhouseColType))
 			if err != nil {
 				return fmt.Errorf("failed to add column %s for table %s: %w", addedColumn.Name,
