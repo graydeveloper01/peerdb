@@ -77,6 +77,8 @@ func NewPostgresConnector(ctx context.Context, pgConfig *protos.PostgresConfig) 
 		return nil, fmt.Errorf("failed to create ssh tunnel: %w", err)
 	}
 
+	slog.Info("Obtained ssh tunnel for postgres peer")
+
 	conn, err := tunnel.NewPostgresConnFromConfig(ctx, connConfig)
 	if err != nil {
 		logger.Error("failed to create connection", slog.Any("error", err))
