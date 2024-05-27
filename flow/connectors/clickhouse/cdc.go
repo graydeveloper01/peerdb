@@ -85,13 +85,7 @@ func (c *ClickhouseConnector) syncRecordsViaAvro(
 		DestinationTableIdentifier: strings.ToLower(rawTableIdentifier),
 	}
 	avroSyncer := NewClickhouseAvroSyncMethod(qrepConfig, c)
-	destinationTableSchema, err := c.getTableSchema(qrepConfig.DestinationTableIdentifier)
-	if err != nil {
-		slog.Error("[syncRecordsViaAvro]: failed to get table schema", slog.Any("error", err))
-		return nil, err
-	}
-
-	numRecords, err := avroSyncer.SyncRecords(ctx, destinationTableSchema, stream, req.FlowJobName)
+	numRecords, err := avroSyncer.SyncRecords(ctx, stream, req.FlowJobName)
 	if err != nil {
 		return nil, err
 	}
