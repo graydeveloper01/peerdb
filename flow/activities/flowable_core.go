@@ -11,7 +11,7 @@ import (
 
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
-	"github.com/yuin/gopher-lua"
+	lua "github.com/yuin/gopher-lua"
 	"go.temporal.io/sdk/activity"
 	"go.temporal.io/sdk/log"
 	"go.temporal.io/sdk/temporal"
@@ -67,11 +67,15 @@ func syncCore[TPull connectors.CDCPullConnectorCore, TSync connectors.CDCSyncCon
 	ctx = context.WithValue(ctx, shared.FlowNameKey, flowName)
 	logger := activity.GetLogger(ctx)
 	activity.RecordHeartbeat(ctx, "starting flow...")
+
+	slog.Info("Getting clickhouse connector in syncCore")
 	dstConn, err := connectors.GetAs[TSync](ctx, config.Destination)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get destination connector: %w", err)
 	}
 	defer connectors.CloseConnector(ctx, dstConn)
+
+	slog.Info("Obtained destination connector in syncCore")
 
 	tblNameMapping := make(map[string]model.NameAndExclude, len(options.TableMappings))
 	for _, v := range options.TableMappings {

@@ -87,6 +87,7 @@ func (c *ClickhouseConnector) syncRecordsViaAvro(
 	avroSyncer := NewClickhouseAvroSyncMethod(qrepConfig, c)
 	destinationTableSchema, err := c.getTableSchema(qrepConfig.DestinationTableIdentifier)
 	if err != nil {
+		slog.Error("[syncRecordsViaAvro]: failed to get table schema", slog.Any("error", err))
 		return nil, err
 	}
 
@@ -115,6 +116,7 @@ func (c *ClickhouseConnector) SyncRecords(ctx context.Context, req *model.SyncRe
 
 	res, err := c.syncRecordsViaAvro(ctx, req, rawTableName, req.SyncBatchID)
 	if err != nil {
+		c.logger.Error("failed to sync records via avro", slog.Any("error", err))
 		return nil, err
 	}
 

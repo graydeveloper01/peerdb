@@ -74,7 +74,7 @@ func (c *ClickhouseConnector) getTableSchema(tableName string) ([]*sql.ColumnTyp
 	//nolint:rowserrcheck
 	rows, err := c.database.Query(queryString)
 	if err != nil {
-		return nil, fmt.Errorf("failed to execute query: %w", err)
+		return nil, fmt.Errorf("failed to execute get clickhouse table schema query: %w", err)
 	}
 	defer rows.Close()
 

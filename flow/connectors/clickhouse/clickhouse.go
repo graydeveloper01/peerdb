@@ -6,6 +6,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"log/slog"
 	"net/url"
 	"strings"
 	"time"
@@ -104,6 +105,8 @@ func NewClickhouseConnector(
 		return nil, err
 	}
 
+	slog.Info("Getting AWS credentials")
+
 	credentialsProvider, err := utils.GetAWSCredentialsProvider(ctx, "clickhouse", utils.PeerAWSCredentials{
 		Credentials: aws.Credentials{
 			AccessKeyID:     config.AccessKeyId,
@@ -139,6 +142,8 @@ func NewClickhouseConnector(
 	if err != nil {
 		return nil, err
 	}
+
+	slog.Info("Getting AWS credentials provider")
 	if credentials.AWS.SessionToken != "" {
 		// This is the minimum version of Clickhouse that actually supports session token
 		// https://github.com/ClickHouse/ClickHouse/issues/61230
@@ -162,6 +167,8 @@ func NewClickhouseConnector(
 				"You can also contact PeerDB support for implicit S3 stage setup for older versions of Clickhouse.")
 		}
 	}
+
+	slog.Info("Clickhouse connector received")
 
 	return &ClickhouseConnector{
 		database:           database,
