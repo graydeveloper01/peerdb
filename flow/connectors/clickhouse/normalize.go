@@ -150,7 +150,7 @@ func (c *ClickhouseConnector) NormalizeRecords(ctx context.Context, req *model.N
 
 	rawTbl := c.getRawTableName(req.FlowJobName)
 
-	modVal := 17
+	modVal := 7
 	for modPart := 0; modPart < modVal; modPart++ {
 		for _, tbl := range destinationTableNames {
 			// model the raw table data as inserts.
