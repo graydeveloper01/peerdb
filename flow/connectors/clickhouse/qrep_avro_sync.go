@@ -237,6 +237,11 @@ func (s *ClickhouseAvroSyncMethod) writeToAvroFiles(
 		return nil, fmt.Errorf("failed to write records to S3: %w", err)
 	}
 
+	s.connector.logger.Info("avro files written to S3", slog.Int("numFiles", len(avroFiles)))
+	for _, avroFile := range avroFiles {
+		s.connector.logger.Info("avro file written to S3", slog.String("filePath", avroFile.FilePath))
+	}
+
 	return avroFiles, nil
 }
 
