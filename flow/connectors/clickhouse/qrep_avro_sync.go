@@ -201,7 +201,7 @@ func (s *ClickhouseAvroSyncMethod) SyncQRepRecords(
 
 	activity.RecordHeartbeat(ctx, "finished syncing records")
 
-	return avroFile.NumRecords, nil
+	return totalRecords, nil
 }
 
 func (s *ClickhouseAvroSyncMethod) getAvroSchema(
