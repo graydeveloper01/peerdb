@@ -202,7 +202,7 @@ func (p *peerDBOCFWriter) WriteRecordsToS3Parts(
 			numRows, writeOcfError = p.WriteOCF(ctx, w, maxRecordsPerFile)
 		}()
 
-		key := fmt.Sprintf("%s_part_%d.avro", keyPrefix, part)
+		key := fmt.Sprintf("%s_part_%d.avro.zst", keyPrefix, part)
 		_, err = manager.NewUploader(s3svc).Upload(ctx, &s3.PutObjectInput{
 			Bucket: aws.String(bucketName),
 			Key:    aws.String(key),
