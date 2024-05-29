@@ -232,7 +232,8 @@ func (s *ClickhouseAvroSyncMethod) writeToAvroFiles(
 	s3AvroFileKeyPrefix := fmt.Sprintf("%s/%s/%s", s3o.Prefix, flowJobName, partitionID)
 	s3AvroFileKeyPrefix = strings.Trim(s3AvroFileKeyPrefix, "/")
 	maxRecordsPerFile := 1_000_000
-	avroFiles, err := ocfWriter.WriteRecordsToS3Parts(ctx, s3o.Bucket, s3AvroFileKeyPrefix, s.connector.credsProvider.Provider, maxRecordsPerFile)
+	avroFiles, err := ocfWriter.WriteRecordsToS3Parts(
+		ctx, s3o.Bucket, s3AvroFileKeyPrefix, s.connector.credsProvider.Provider, maxRecordsPerFile)
 	if err != nil {
 		return nil, fmt.Errorf("failed to write records to S3: %w", err)
 	}
