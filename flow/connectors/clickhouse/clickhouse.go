@@ -29,7 +29,7 @@ const (
 	PeerDBClickhouseQueryMaxMemoryUsage                  int = 64000000000
 	PeerDBClickhouseMaxBlockSize                         int = 10240
 	PeerDBClickhouseMaxInsertBlockSize                   int = 10240
-	PeerDBClickhouseMaxInsertThreads                     int = 1
+	PeerDBClickhouseMaxInsertThreads                     int = 3
 	PeerDBClickhouseMemoryOvercommitRatioDenominator     int = 0
 	PeerDBClickhouseMemoryOvercommitRatioDenominatorUser int = 0
 	PeerDBClickhouseMaxMemoryUsageForUser                int = 64000000000
