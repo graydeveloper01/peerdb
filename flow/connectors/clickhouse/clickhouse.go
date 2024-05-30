@@ -208,6 +208,7 @@ func connect(ctx context.Context, config *protos.ClickhouseConfig) (*sql.DB, err
 			"receive_timeout": 10000,
 		},
 		ReadTimeout: 10000 * time.Second,
+		DialTimeout: 10000 * time.Second,
 	})
 
 	if err := conn.PingContext(ctx); err != nil {
