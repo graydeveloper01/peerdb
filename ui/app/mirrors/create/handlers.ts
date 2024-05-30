@@ -315,7 +315,7 @@ const getDefaultDestinationTable = (
     peerType.toString() == 'CLICKHOUSE' ||
     dBTypeToJSON(peerType) == 'CLICKHOUSE'
   ) {
-    return `${schemaName}.${tableName}`;
+    return tableName;
   }
 
   if (
