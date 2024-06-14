@@ -121,25 +121,27 @@ func generateCreateTableSQLForNormalizedTable(
 }
 
 func (c *ClickhouseConnector) NormalizeRecords(ctx context.Context, req *model.NormalizeRecordsRequest) (*model.NormalizeResponse, error) {
-	normBatchID, err := c.GetLastNormalizeBatchID(ctx, req.FlowJobName)
-	if err != nil {
-		c.logger.Error("[clickhouse] error while getting last sync and normalize batch id", "error", err)
-		return nil, err
-	}
+	// normBatchID, err := c.GetLastNormalizeBatchID(ctx, req.FlowJobName)
+	// if err != nil {
+	// 	c.logger.Error("[clickhouse] error while getting last sync and normalize batch id", "error", err)
+	// 	return nil, err
+	// }
 
+	var normBatchID int64 = 559
+	var syncBatchID int64 = 560
 	// normalize has caught up with sync, chill until more records are loaded.
-	if normBatchID >= req.SyncBatchID {
+	if normBatchID >= syncBatchID {
 		return &model.NormalizeResponse{
 			Done:         false,
 			StartBatchID: normBatchID,
-			EndBatchID:   req.SyncBatchID,
+			EndBatchID:   syncBatchID,
 		}, nil
 	}
 
 	destinationTableNames, err := c.getDistinctTableNamesInBatch(
 		ctx,
 		req.FlowJobName,
-		req.SyncBatchID,
+		syncBatchID,
 		normBatchID,
 	)
 	if err != nil {
@@ -206,7 +208,7 @@ func (c *ClickhouseConnector) NormalizeRecords(ctx context.Context, req *model.N
 		selectQuery.WriteString(" WHERE _peerdb_batch_id > ")
 		selectQuery.WriteString(strconv.FormatInt(normBatchID, 10))
 		selectQuery.WriteString(" AND _peerdb_batch_id <= ")
-		selectQuery.WriteString(strconv.FormatInt(req.SyncBatchID, 10))
+		selectQuery.WriteString(strconv.FormatInt(syncBatchID, 10))
 		selectQuery.WriteString(" AND _peerdb_destination_table_name = '")
 		selectQuery.WriteString(tbl)
 		selectQuery.WriteString("'")
@@ -228,17 +230,17 @@ func (c *ClickhouseConnector) NormalizeRecords(ctx context.Context, req *model.N
 		}
 	}
 
-	endNormalizeBatchId := normBatchID + 1
-	err = c.UpdateNormalizeBatchID(ctx, req.FlowJobName, endNormalizeBatchId)
-	if err != nil {
-		c.logger.Error("[clickhouse] error while updating normalize batch id", "error", err)
-		return nil, err
-	}
+	endNormalizeBatchId := normBatchID
+	// err = c.UpdateNormalizeBatchID(ctx, req.FlowJobName, endNormalizeBatchId)
+	// if err != nil {
+	// 	c.logger.Error("[clickhouse] error while updating normalize batch id", "error", err)
+	// 	return nil, err
+	// }
 
 	return &model.NormalizeResponse{
 		Done:         true,
 		StartBatchID: endNormalizeBatchId,
-		EndBatchID:   req.SyncBatchID,
+		EndBatchID:   syncBatchID,
 	}, nil
 }
 

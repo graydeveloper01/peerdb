@@ -326,17 +326,17 @@ func (a *FlowableActivity) StartNormalize(
 	}
 
 	// normalize flow did not run due to no records, no need to update end time.
-	if res.Done {
-		err = monitoring.UpdateEndTimeForCDCBatch(
-			ctx,
-			a.CatalogPool,
-			input.FlowConnectionConfigs.FlowJobName,
-			res.EndBatchID,
-		)
-		if err != nil {
-			return nil, err
-		}
-	}
+	// if res.Done {
+	// 	err = monitoring.UpdateEndTimeForCDCBatch(
+	// 		ctx,
+	// 		a.CatalogPool,
+	// 		input.FlowConnectionConfigs.FlowJobName,
+	// 		res.EndBatchID,
+	// 	)
+	// 	if err != nil {
+	// 		return nil, err
+	// 	}
+	// }
 
 	// log the number of batches normalized
 	logger.Info(fmt.Sprintf("normalized records from batch %d to batch %d",
