@@ -477,6 +477,7 @@ func QRepWaitForNewRowsWorkflow(ctx workflow.Context, config *protos.QRepConfig,
 		return fmt.Errorf("error checking for new rows: %w", err)
 	}
 
+	optedForOverwrite := config.WriteMode.WriteType == protos.QRepWriteType_QREP_WRITE_MODE_OVERWRITE
 	// If no new rows are found, continue as new
 	if !hasNewRows || optedForOverwrite {
 		waitBetweenBatches := 5 * time.Second
