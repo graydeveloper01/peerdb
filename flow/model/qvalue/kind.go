@@ -87,6 +87,7 @@ var QValueKindToSnowflakeTypeMap = map[QValueKind]string{
 	QValueKindGeography:   "GEOGRAPHY",
 	QValueKindGeometry:    "GEOMETRY",
 	QValueKindPoint:       "GEOMETRY",
+	QValueKindTSTZRange:   "STRING",
 
 	// array types will be mapped to VARIANT
 	QValueKindArrayFloat32:     "VARIANT",
@@ -99,6 +100,8 @@ var QValueKindToSnowflakeTypeMap = map[QValueKind]string{
 	QValueKindArrayTimestamp:   "VARIANT",
 	QValueKindArrayTimestampTZ: "VARIANT",
 	QValueKindArrayBoolean:     "VARIANT",
+	QValueKindArrayJSONB:       "VARIANT",
+	QValueKindArrayJSON:        "VARIANT",
 }
 
 var QValueKindToClickhouseTypeMap = map[QValueKind]string{
